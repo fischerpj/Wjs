@@ -6,6 +6,9 @@ Full NodeJS Web Scraping
 - For Web Scraping and Api Works
 - Use Termux, git and gh cli
 
+### LOG
+- ~/package.json and npm install creates node_modules, push
+
 PAT for Termux is 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
 
 git ls-tree -r main --name-only
