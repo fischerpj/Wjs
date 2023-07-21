@@ -4,7 +4,12 @@ Full NodeJS Web Scraping
 ## Abstract
 - Dev Platform Termux Git NodeJS Axios
 - For Web Scraping and Api Works
-- Use Termux, git and gh cli
+- Use Termux, git and gh cli, termux-api 
+
+### Technos
+- termux os
+- axios for http
+
 
 ### LOG
 - ~/package.json and npm install creates node_modules, push
