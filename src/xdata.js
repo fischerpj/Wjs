@@ -14,8 +14,15 @@ return axios.get('http://webcode.me').then(reponse => reponse.data)
 
 function asDom_(html){
     // Use Cheerio to parse the HTML
+console.log(html);
+
     const $ = cheerio.load(html);
-return $
+    const all_li = $('li');
+// Iterate over each div and span element and print its text content
+all_li.each((i, element) => {
+    console.log($(element).text());
+});
+//return $
 }
 
 // asynchronous axios.get of .data

@@ -8,8 +8,8 @@ Full NodeJS Web Scraping
 
 ### Technos
 - termux os
-- axios for http
-
+- axios for http GET
+- cheerioh for PARSING
 
 ### LOG
 - ~/package.json and npm install creates node_modules, push
