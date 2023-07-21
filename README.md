@@ -8,6 +8,7 @@ Full NodeJS Web Scraping
 
 ### LOG
 - ~/package.json and npm install creates node_modules, push
+- pkg install termux-api for clipboard
 
 PAT for Termux is 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
 
