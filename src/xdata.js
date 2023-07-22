@@ -14,10 +14,10 @@ return axios.get('http://webcode.me').then(reponse => reponse.data)
 
 function asDom_(html){
     // Use Cheerio to parse the HTML
-console.log(html);
+//console.log(html);
 
     const $ = cheerio.load(html);
-    const all_li = $('li');
+    const all_li = $('div#library-article-container li');
 // Iterate over each div and span element and print its text content
 all_li.each((i, element) => {
     console.log($(element).text());
@@ -44,7 +44,7 @@ return 'https://www.biblestudytools.com/concordances/torreys-topical-textbook/si
 //  execute functions here
 //console.log(xGet_());
 aData_(endpoint_())
-.then(html => console.log(asDom_(html)));
+.then(html => asDom_(html));
 //hGet_();
 
 // document.getElementsByTagName("div") 
