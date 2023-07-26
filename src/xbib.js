@@ -7,6 +7,19 @@ const cheerio = require('cheerio');
 
 // here functions definitions
 //
+function uri_(){
+var arr = [];
+    arr.push({
+        url: 'https://www.biblegateway.com/passage/?search=Rom1%3A1&version=SG21',
+        desc: 'bgw'
+    });
+    arr.push({
+        url: 'https://www.biblestudytools.com',
+        desc: 'bst'
+    });
+return arr;
+}
+
 // promised axios.get .data
 function xGet_() {
 return axios.get('http://webcode.me').then(reponse => reponse.data)
@@ -22,7 +35,9 @@ function asDom_(html){
 all_li.each((i, element) => {
     console.log($(element).text());
 });
-//return $
+console.log($);
+return $
+
 // Use Cheerio to parse the HTML
 ////const $ = cheerio.load(html);
 
@@ -43,7 +58,6 @@ all_li.each((i, element) => {
     // Log each element's strcutured data results to the console
 ////    console.log(structuredData);
 /////}
-
 }
 
 // asynchronous axios.get of .data
@@ -57,16 +71,11 @@ console.log(error)
 }
 };
 
-// endpoint definitions
-function endpoint_(){
-return 'https://www.biblestudytools.com/concordances/torreys-topical-textbook/sin.html';
-}
-
 //  execute functions here
 //console.log(xGet_());
-aData_(endpoint_())
-.then(html => asDom_(html));
+aData_(uri_()[0].url).then(html => asDom_(html));
 //hGet_();
 
 // document.getElementsByTagName("div") 
 
+console.log(JSON.stringify(uri_()));
