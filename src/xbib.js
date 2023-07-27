@@ -6,15 +6,19 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 // here functions definitions
+// uri_
+//
 //
 function uri_(){
 var arr = [];
     arr.push({
         url: 'https://www.biblegateway.com/passage/?search=Rom1%3A1&version=SG21',
+        filter: '.dropdown-display-text',
         desc: 'bgw'
     });
     arr.push({
         url: 'https://www.biblestudytools.com',
+        filter: 'div#library-article-container li',
         desc: 'bst'
     });
 return arr;
@@ -25,18 +29,19 @@ function xGet_() {
 return axios.get('http://webcode.me').then(reponse => reponse.data)
 }
 
-function asDom_(html){
+function asDom_(html,top){
     // Use Cheerio to parse the HTML
 //console.log(html);
 
     const $ = cheerio.load(html);
-    const all_li = $('div#library-article-container li');
+    const all_li = $(top);
 // Iterate over each div and span element and print its text content
 all_li.each((i, element) => {
     console.log($(element).text());
 });
 console.log($);
 return $
+}
 
 // Use Cheerio to parse the HTML
 ////const $ = cheerio.load(html);
@@ -58,7 +63,6 @@ return $
     // Log each element's strcutured data results to the console
 ////    console.log(structuredData);
 /////}
-}
 
 // asynchronous axios.get of .data
 async function aData_(url) {
@@ -73,9 +77,9 @@ console.log(error)
 
 //  execute functions here
 //console.log(xGet_());
-aData_(uri_()[0].url).then(html => asDom_(html));
+aData_(uri_()[1].url).then(html => asDom_(html,uri_()[1].filter)).then(x=>console.log(x));
 //hGet_();
 
 // document.getElementsByTagName("div") 
 
-console.log(JSON.stringify(uri_()));
+//console.log(JSON.stringify(uri_()));
