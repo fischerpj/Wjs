@@ -5,29 +5,99 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+// preliminary functions
+console.log('-----> start of preliminary');
+
+// helper with default arguments
+// returns only one merged object
+
+actuals_ = function(
+  param={
+    ref: 'ps1:1',
+    version: 'SG21'},
+  defaut = { 
+    ref: 'gen1:1',
+    version: 'SG21'}
+  ){
+return {...defaut,...param}
+}
+////console.log(actuals_({version: 'NGU-DE'}));
+
 // declaration of CLASSES
 // qr_ : query data
 // gen_ : extracts Content, Meta from Url, 
-class Qro_{
-  constructor(params={
-    version: 'SG21',
-    ref: 'rom1:17'}
+console.log('Start Classes');
+
+params_ = function(
+    param = {
+      bgw: 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
+      bst: 'https://www.biblestudytools.com/dictionaries/bakers-evangelical-dictionary/faith.html'
+    }){
+    const args = param;
+// collect all values
+    const _keys = Object.keys(args);
+// collect all keys
+    const _values = Object.values(args);
+// craft URLSearchParams
+    _params = new URLSearchParams;
+    _keys.forEach((pp,ii)=> _params.append(_keys[ii],_values[ii]));
+    return _params
+}
+console.log(params_());
+
+// insert urlsearchparams 
+class Query_{
+  constructor(
+    params = actuals_(),
+    ...rest
     ){
-    const keys = Object.keys(params);
-    for (const k in keys) {this[k]= params[k]};
-}}
+const args = actuals_(params,...rest);
+// collect all values
+//    this._keys = Object.keys(params);
+    this._keys = Object.keys(args);
+// collect all keys
+//    this._values = Object.values(params);
+    this._values = Object.values(args);
+// populate this.properties indivudually
+    this._keys.forEach((pp,ii)=>this[this._keys[ii]]=this._values[ii]);
+// craft URLSearchParams
+    this._params = new URLSearchParams;
+    this._keys.forEach((pp,ii)=> this._params.append(this._keys[ii],this._values[ii]));
+// assemble searchstring
+//    this._string = '?'+this._params.toString();
+}
+//    this.keys.forEach((pp,ii)=>
+// method 
+  toString() {
+    return '?'+this._params.toString();
+  }
+}
 
-qro = new Qro_();
-console.log(qro);
+qro = new Query_({ref: 'heb4:12',toto: 'itsme',field: 'magnetic'});
+//qro = new Qro_();
+////console.log(qro);
+////console.log(qro.toString());
 
-class Qr_ {
-  constructor(...params){
-   this[params[0]]='tito'
-   params.forEach((pp,ii) => 
-this[ii]= pp)
+class Obj_ {
+ constructor(
+   ...params){
+// collect all keys in array
+   this._keys = Object.keys(...params);
+// collect all values in array
+   this._values = Object.values(...params);
+// populate individual this.properties of this
+   this._keys.forEach((pp,ii)=>this[this._keys[ii]]=this._values[ii]);
+//   params.forEach((pp,ii) => this[ii]= pp)
 }
 }
-console.log(new Qr_(version='SG21'));
+////console.log(new Obj_(actuals_()));
+
+// build actuals 
+const elements  = new Obj_({
+  content:'div.passage-content p',
+  meta: 'div.dropdown-display-text'
+});
+////console.log(elements);
 
 class gen_ {
   constructor(
@@ -63,7 +133,35 @@ class gen_ {
   }
 }
 
+class Bgw {
+  constructor(
+    ask='rom1:17',
+    version='SG21') {
+      this.name = 'Bgw';
+      this.ask = ask;
+      this.version = version;
+      this.url='https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
+      this.filter = 'div.passage-content p';
+      this.filter2= 'div.dropdown-display-text';
+    }
+}
+
 // acces with Name an object's collection of objects 
+const uris = [];
+uris.push({
+  url: 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
+  what: actuals_({ref: 'rom2:17'}),
+  elements: {
+    content:'div.passage-content p',
+    meta: 'div.dropdown-display-text'
+    },
+  });
+uris.push({
+  url: 'https://www.biblestudytools.com/dictionaries/bakers-evangelical-dictionary/faith.html',
+  what: 'faith.html'
+  });
+////console.log(uris);
+
 const w3 = {};
 // bgw passage search like rom1:17
 w3['bgw'] = new gen_();
@@ -74,7 +172,7 @@ w3['bst'] = new gen_(
   content= 'div#library-article-container li',
   meta='');
 //
-console.log(w3.bgw);
+////console.log(w3.bgw);
 
 // handle urls
 let f1= new gen_();
@@ -89,6 +187,25 @@ let p1 = new URLSearchParams();
 p1.append('search','rom1:1-6');
 p1.append('version','SG21');
 //console.log(p1.toString());
+console.log(p1);
+console.log(p1.get('search'));
+
+// FUNCTIONS
+console.log('-----> Start Functions');
+
+console.log(actuals_());
+
+params_ = function(
+  params = {
+    version: 'NGU-DE',
+    search: 'rom1:17'
+    },
+  ...rest
+  ){
+  const keys = Object.keys(params);
+ return [params,keys]
+}
+console.log(params_());
 
 aCombo_ = function(
   search = 'rom1:17',
@@ -123,19 +240,6 @@ console.log(error)
 }
 };
 
-class Bgw {
-  constructor(
-    ask='rom1:17',
-    version='SG21') {
-      this.name = 'Bgw';
-      this.ask = ask;
-      this.version = version;
-      this.url = 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21';
-      this.filter = 'div.passage-content p';
-    this.filter2 = '.dropdown-display-text'
-    }
-}
-
 // instanciation of object
 const verse = aCombo_();
 verse.then(x=>console.log(x.text()));
@@ -159,6 +263,7 @@ var arr = [];
     });
 return arr;
 }
+console.log(uri_());
 // UTILS
 // names of arguments
 //var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;

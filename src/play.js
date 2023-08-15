@@ -35,3 +35,6 @@ console.log(age);
 // is equivalent to:
 console.log( JSON.stringify(obj_()));
 console.log(obj_());
+
+let squareNum = x => x * x;
+console.log(squareNum(2));
