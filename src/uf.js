@@ -5,8 +5,30 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+// preliminary objects
+console.log('-----> prelim objects');
+const registry = {
+      bgw: {
+        url: 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
+        search: {
+          search:'rom1:17',
+          version:'SG21'},
+        elements:  {
+          content:'div.passage-content p',
+          meta: 'div.dropdown-display-text'
+        }},
+      bst: {
+        url: 'https://www.biblestudytools.com/dictionaries/bakers-evangelical-dictionary/faith.html',
+        index: 'faith.html',
+        elements: {
+          content: 'div#library-article-container li',
+          meta:''
+        }}
+    };
+//console.log(registry.bgw.search);
+
 // preliminary functions
-console.log('-----> start of preliminary');
+console.log('-----> start of preliminary functions');
 
 // helper with default arguments
 // returns only one merged object
@@ -19,65 +41,26 @@ actuals_ = function(
     ref: 'gen1:1',
     version: 'SG21'}
   ){
-return {...defaut,...param}
+return {...defaut, ...param}
 }
 ////console.log(actuals_({version: 'NGU-DE'}));
 
+query_string_ = function(search =registry.bgw.search){
+// collect param's keys in array
+   const myKeys = Object.keys(search);
+// collect param's values in array
+   const myValues = Object.values(search);
+    my_search = new URLSearchParams;
+    myKeys.forEach((pp,ii)=> my_search.append(myKeys[ii],myValues[ii]));
+    return '?'+my_search.toString();
+}
+console.log(query_string_());
+
 // declaration of CLASSES
-// qr_ : query data
 // gen_ : extracts Content, Meta from Url, 
-console.log('Start Classes');
+console.log('-----> Start Classes');
 
-params_ = function(
-    param = {
-      bgw: 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
-      bst: 'https://www.biblestudytools.com/dictionaries/bakers-evangelical-dictionary/faith.html'
-    }){
-    const args = param;
-// collect all values
-    const _keys = Object.keys(args);
-// collect all keys
-    const _values = Object.values(args);
-// craft URLSearchParams
-    _params = new URLSearchParams;
-    _keys.forEach((pp,ii)=> _params.append(_keys[ii],_values[ii]));
-    return _params
-}
-console.log(params_());
-
-// insert urlsearchparams 
-class Query_{
-  constructor(
-    params = actuals_(),
-    ...rest
-    ){
-const args = actuals_(params,...rest);
-// collect all values
-//    this._keys = Object.keys(params);
-    this._keys = Object.keys(args);
-// collect all keys
-//    this._values = Object.values(params);
-    this._values = Object.values(args);
-// populate this.properties indivudually
-    this._keys.forEach((pp,ii)=>this[this._keys[ii]]=this._values[ii]);
-// craft URLSearchParams
-    this._params = new URLSearchParams;
-    this._keys.forEach((pp,ii)=> this._params.append(this._keys[ii],this._values[ii]));
-// assemble searchstring
-//    this._string = '?'+this._params.toString();
-}
-//    this.keys.forEach((pp,ii)=>
-// method 
-  toString() {
-    return '?'+this._params.toString();
-  }
-}
-
-qro = new Query_({ref: 'heb4:12',toto: 'itsme',field: 'magnetic'});
-//qro = new Qro_();
-////console.log(qro);
-////console.log(qro.toString());
-
+// Obj_ ...params populates Keys, Values, Properties
 class Obj_ {
  constructor(
    ...params){
@@ -88,17 +71,53 @@ class Obj_ {
 // populate individual this.properties of this
    this._keys.forEach((pp,ii)=>this[this._keys[ii]]=this._values[ii]);
 //   params.forEach((pp,ii) => this[ii]= pp)
+// check presence
+// collect param's values in array
+//if (this._keys.includes('search')){
+//  const myValues = Object.values();
+    this._search = query_string_(this.search);
+//    myKeys.forEach((pp,ii)=> this._search.append(myKeys[ii],myValues[ii]));(
+    this._url = this._keys.includes('url');
+}}
+
+console.log(new Obj_(registry.bgw));
+
+// Query_ extends Obj_ with  UrlSearchParams 
+class Query_ extends Obj_ {
+  constructor(
+    params = actuals_(),
+    ...rest
+    ){
+// craft URLSearchParams
+// need to call super constructir first
+  const args= actuals_(params,...rest);
+  super(args);
+// collect param's keys in array
+   const myKeys = Object.keys(params);
+// collect param's values in array
+   const myValues = Object.values(params);
+    this._search = new URLSearchParams;
+    myKeys.forEach((pp,ii)=> this._search.append(myKeys[ii],myValues[ii]));
 }
+// method 
+  toString() {
+    return '?'+this._search.toString();
+  }
 }
-////console.log(new Obj_(actuals_()));
+
+qro = new Query_(
+  {ref: 'heb4:12',version: 'NGU-DE'},
+  {toto: 'itsme',field: 'magnetic'});
+////console.log(qro.toString());
+
+// create a bgw instance from registry info
+const bgw = new Query_(
+  registry['bgw'].what, 
+  actuals_(registry.bgw.where,
+  registry.bgw.how));
+console.log(bgw);
 
 // build actuals 
-const elements  = new Obj_({
-  content:'div.passage-content p',
-  meta: 'div.dropdown-display-text'
-});
-////console.log(elements);
-
 class gen_ {
   constructor(
     ask = 'rom1:17-18',
@@ -127,7 +146,9 @@ class gen_ {
   return '?'+p1.toString()
 }
 // recraft SEARCH string 
-  research_(uu=this.parse, qq=this.requery) {
+  research_(
+    uu=this.parse, 
+    qq=this.requery) {
     // do something
     return  uu.origin + uu.pathname+qq;
   }
@@ -147,20 +168,6 @@ class Bgw {
 }
 
 // acces with Name an object's collection of objects 
-const uris = [];
-uris.push({
-  url: 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
-  what: actuals_({ref: 'rom2:17'}),
-  elements: {
-    content:'div.passage-content p',
-    meta: 'div.dropdown-display-text'
-    },
-  });
-uris.push({
-  url: 'https://www.biblestudytools.com/dictionaries/bakers-evangelical-dictionary/faith.html',
-  what: 'faith.html'
-  });
-////console.log(uris);
 
 const w3 = {};
 // bgw passage search like rom1:17
@@ -192,20 +199,6 @@ console.log(p1.get('search'));
 
 // FUNCTIONS
 console.log('-----> Start Functions');
-
-console.log(actuals_());
-
-params_ = function(
-  params = {
-    version: 'NGU-DE',
-    search: 'rom1:17'
-    },
-  ...rest
-  ){
-  const keys = Object.keys(params);
- return [params,keys]
-}
-console.log(params_());
 
 aCombo_ = function(
   search = 'rom1:17',
@@ -244,26 +237,6 @@ console.log(error)
 const verse = aCombo_();
 verse.then(x=>console.log(x.text()));
 
-// URI definitions
-// uri_
-//
-// uri_ defines Array of url and filter
-uri_ = function (){
-var arr = [];
-    arr.push({
-        url: 'https://www.biblegateway.com/passage/?search=Rom1%3A1-6&version=SG21',
-        elements:[{filter: 'div.passage-content p'},
-                  {filter2: 'div.dropdown-display-text'}],
-        desc: 'bgw'
-    });
-    arr.push({
-        url: 'https://www.biblestudytools.com',
-        filter: 'div#library-article-container li',
-        desc: 'bst'
-    });
-return arr;
-}
-console.log(uri_());
 // UTILS
 // names of arguments
 //var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
