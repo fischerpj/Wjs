@@ -77,10 +77,20 @@ class Obj_ {
 //  const myValues = Object.values();
     this._search = query_string_(this.search);
 //    myKeys.forEach((pp,ii)=> this._search.append(myKeys[ii],myValues[ii]));(
-    this._url = this._keys.includes('url');
+    const my_parse = new URL(this.url);
+    this._href = my_parse.origin + my_parse.pathname+ this._search;
+}
+// getter setter methods
+get href() {
+  return this._href 
+};
+set what(x){
+  this.search = x;
 }}
 
-console.log(new Obj_(registry.bgw));
+
+const bgw = new Obj_(registry.bgw);
+console.log(bgw.href);
 
 // Query_ extends Obj_ with  UrlSearchParams 
 class Query_ extends Obj_ {
@@ -93,29 +103,24 @@ class Query_ extends Obj_ {
   const args= actuals_(params,...rest);
   super(args);
 // collect param's keys in array
-   const myKeys = Object.keys(params);
+//   const myKeys = Object.keys(params);
 // collect param's values in array
-   const myValues = Object.values(params);
-    this._search = new URLSearchParams;
-    myKeys.forEach((pp,ii)=> this._search.append(myKeys[ii],myValues[ii]));
+//   const myValues = Object.values(params);
+//    this._search = new URLSearchParams;
+//    myKeys.forEach((pp,ii)=> this._search.append(myKeys[ii],myValues[ii]));
 }
 // method 
-  toString() {
-    return '?'+this._search.toString();
-  }
+ // toString() {
+  //  return '?'+this._search.toString();
+ // }
 }
 
-qro = new Query_(
-  {ref: 'heb4:12',version: 'NGU-DE'},
-  {toto: 'itsme',field: 'magnetic'});
+/// qro = new Query_(
+///  {ref: 'heb4:12',version: 'NGU-DE'},
+///  {toto: 'itsme',field: 'magnetic'});
 ////console.log(qro.toString());
 
 // create a bgw instance from registry info
-const bgw = new Query_(
-  registry['bgw'].what, 
-  actuals_(registry.bgw.where,
-  registry.bgw.how));
-console.log(bgw);
 
 // build actuals 
 class gen_ {
