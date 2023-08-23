@@ -89,13 +89,13 @@ catch(error){
 
 //aBody_().then(x=> console.log(x));
 
-cExtract_ = function(
+cExtract_ =  function(
   content='div.passage-content p',
   x= aBody_()
   ){
-let my_data = x.then(body=>{
+let my_data =   x.then(body=>{
     const $ = cheerio.load(body);
-    const data = $(content);
+    const data = $(content).text().trim();
     return data
     });
 return my_data;
@@ -122,19 +122,22 @@ get href() {
   return this._href 
 };
 
-set what(x){
+ set  what(x){
   this._search = query_string_(actuals_({search: x}));
   this._href = this._parse.origin + this._parse.pathname + this._search;
   this._body = aBody_(this._href);
-  this._content = cExtract_(this.elements['content'],this._body);
-};
-
+  this._content =  cExtract_(this.elements['content'],this._body);
+  this._result = {
+    href: this._href, 
+    content: this._content
+    };
+  };
 }
 
 // instance of bgw
 const bgw = new Obj_(registry.bgw);
 // reset search upto body zand content
-bgw.what = 'rom2:1-29';
+bgw.what = 'rom2:1-12';
 //bgw.what.then(x=>console.log(x));
-bgw._content.then(x=>console.log(x.text()));
-
+bgw._content.then(x=>console.log(x));
+console.log(bgw._result);
