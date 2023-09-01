@@ -82,12 +82,31 @@ try{
   let response = await axios.get(url);
   return response.data
   }
+ catch(error){
+  console.log(error)
+  }
+};
+
+aBodyNew_ = async function (
+  url= registry.bgw.url,
+  content='div.passage-content p',
+  ) {
+try{
+  let my_body = await 
+    axios.get(url).then(x=>x.data);
+  const $ = cheerio.load(my_body);
+  const my_data = $(content).text().trim();
+    return  {
+      href: url,
+      content: my_data
+      };
+}
 catch(error){
   console.log(error)
   }
 };
 
-//aBody_().then(x=> console.log(x));
+//aBodyNew_().then(x=> console.log(x));
 
 cExtract_ =  function(
   content='div.passage-content p',
@@ -116,28 +135,26 @@ class Obj_ {
    this._search = query_string_(this.search);
    this._parse = new URL(this.url);
    this._href = this._parse.origin + this._parse.pathname+ this._search;
-}
+};
 // getter-setter methods
 get href() {
   return this._href 
 };
 
- set  what(x){
-  this._search = query_string_(actuals_({search: x}));
-  this._href = this._parse.origin + this._parse.pathname + this._search;
-  this._body = aBody_(this._href);
-  this._content =  cExtract_(this.elements['content'],this._body);
-  this._result = {
-    href: this._href, 
-    content: this._content
-    };
-  };
+set body(url=this._href) {
+  this._body = aBody_(url);
 }
 
+set what(x){
+    this._search = query_string_(actuals_({search: x}));
+    this._href = this._parse.origin + this._parse.pathname + this._search;
+};
+}
 // instance of bgw
 const bgw = new Obj_(registry.bgw);
 // reset search upto body zand content
-bgw.what = 'rom2:1-12';
-//bgw.what.then(x=>console.log(x));
-bgw._content.then(x=>console.log(x));
-console.log(bgw._result);
+
+
+bgw.what = 'ap2:4';;
+//bgw.content.then(x=>console.log(x));
+console.log(bgw);
