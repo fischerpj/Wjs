@@ -121,18 +121,10 @@ async content_(){
   }
  } // end of fun
 
-get result_(){
- const res= this.content_().then((x)=>x);
- return  {
-        version: this.version,
-        content:  res
-        };
 }
-}
+
 const bg = new What_();
 
-//console.log(bg);
-//console.log(bg.content_());
 bg.content_().then(x=>console.log(x));
-//bg.result_().then(x=>console.log(x));
+
 
