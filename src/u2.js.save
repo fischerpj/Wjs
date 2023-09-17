@@ -96,43 +96,26 @@ class What_ {
    this.href = my_parse.origin + my_parse.pathname + this.query;
   }
 
-async content_(){
-  try{
+async body_(){
+  try{ 
     this._body = await 
       axios.get(this.href).then(x=>x.data);
     const $ = cheerio.load(this._body);
-    this._content = $(this['content']).text().trim();
-    const arr = $(this['meta']);
-    const ref = arr[0]['children']['0']['data'];
-    const edition = arr[1]['children']['0']['data'];
-
-    this._result = {
-      search: this.search,
-      version: this.version,
-      text: this._content,
-      ref: ref,
-      edition: edition,
-      href: this.href,
-    };
-    return this._result
+    this.content = $(this['content']).text().trim();
+    return  {
+        href: this.href,
+        search: this.search,
+        content: this.content,
+        version: this.version,
+        content: this.content
+        };
   }
   catch(error){
   console.log(error)
   }
  } // end of fun
-
-get result_(){
- const res= this.content_().then((x)=>x);
- return  {
-        version: this.version,
-        content:  res
-        };
-}
 }
 const bg = new What_();
 
 //console.log(bg);
-//console.log(bg.content_());
-bg.content_().then(x=>console.log(x));
-//bg.result_().then(x=>console.log(x));
-
+bg.body_().then(x=>console.log(x));
