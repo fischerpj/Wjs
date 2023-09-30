@@ -47,7 +47,6 @@ const cv =  x
 const [c,v] = cv.split(/[:]/);
 const bcv = {
   input: x,
-  query: '?'+ new URLSearchParams({search: book+cv, version: values[1]}).toString(),
   search: book+cv,
   bc: book+c,
   b: book,
@@ -62,17 +61,9 @@ Object.keys(bcv)
  delete bcv[key]);
 return bcv
 }
+//console.log(bcv_('gen1:2'));
 
-// normalize bcv input
-input_ = function(
-  x= '2tim4:5!NGU-DE',
-  defaut= 'ps1:1!SG21@bgw'){
-  const my_x = bcv_(x);
-  const my_defaut = bcv_(defaut);
-  const result = actuals_(param=my_x, defaut=my_defaut);
-  return result
-};
-//console.log(input_());
+
 
 queryString_ = function(
   search = registry.bgw.search
@@ -86,6 +77,20 @@ queryString_ = function(
     return '?'+my_search.toString();
 }
 
+// normalize bcv input
+input_ = function(
+  x= '2tim4:5',
+  defaut= 'ps1:1!SG21@bgw'){
+  const my_x = bcv_(x);
+  const my_defaut = bcv_(defaut);
+  const result = actuals_(param=my_x, defaut=my_defaut);
+  result.canon = result.search +'!'+result.version+'@'+result.source;
+  result.query = '?'+ new URLSearchParams({search: result.search, version: result.version}).toString();
+return result
+};
+//console.log(input_());
+
+// what gathers all search and endpoint data
 class What_ {
   constructor(x= 'john3:17!NGU-DE'){
     Object.assign(this,input_(x));
@@ -123,8 +128,8 @@ async content_(){
 
 }
 
-const bg = new What_();
-
-bg.content_().then(x=>console.log(x));
+const bg = new What_('john3:17!NGU-DE');
+console.log(bg);
+//bg.content_().then(x=>console.log(x));
 
 
