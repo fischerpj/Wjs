@@ -70,7 +70,7 @@ Object.keys(bcv)
     myResult.input = x;
   return myResult
 }
-console.log(bcv_());
+//console.log(bcv_());
 
 bcv_dep = function(x='2john3:16!SG21@bgw'){
 // tri-split
@@ -100,8 +100,6 @@ Object.keys(bcv)
 return bcv
 }
 console.log(bcv_('ps50:4'));
-
-
 
 queryString_ = function(
   search = registry.bgw.search
@@ -166,8 +164,8 @@ async content_(){
 
 }
 
-const bg = new What_('john3:17!NGU-DE');
-console.log(bg);
-//bg.content_().then(x=>console.log(x));
+const bg = new What_('john4:18!NGU-DE');
+//console.log(bg);
+bg.content_().then(x=>console.log(x));
 
 
