@@ -50,8 +50,8 @@ bcv_ = function( x='2john3:16!SG21@bgw' ){
     b: b,
     c: c,
     v: v,
-    version: e,
-    source: s
+    e: e,
+    s: s
     };
 // delete null  property
 Object.keys(bcv)
@@ -70,7 +70,7 @@ Object.keys(bcv)
     myResult.input = x;
   return myResult
 }
-console.log(bcv_());
+//console.log(bcv_());
 
 bcv_dep = function(x='2john3:16!SG21@bgw'){
 // tri-split
@@ -100,8 +100,6 @@ Object.keys(bcv)
 return bcv
 }
 console.log(bcv_('ps50:4'));
-
-
 
 queryString_ = function(
   search = registry.bgw.search
