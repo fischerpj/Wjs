@@ -36,17 +36,20 @@ return {...defaut, ...param}
 
 bcv_ = function( x='2john3:16!SG21@bgw' ){
 // syntax is ^BC:V!E@S$
-  const b =  x
+  const bc = x
+    .match(/^\d*[a-z]+[0-9]+/i);
+  const b =  bc[0]
     .match(/^\d*[a-z]+/i);
-  const c = x
-    .match(/\d*:/);
+  const c = bc[0]
+    .match(/\d*$/);
   const v = x
-    .match(/:\d*!/);
+    .match(/:\d*/);
   const e = x
     .match(/![a-z0-9-]*@*/i);
   const s = x
     .match(/@[a-z0-9]+$/i);
   const bcv = {
+    bc: bc,
     b: b,
     c: c,
     v: v,
@@ -65,14 +68,14 @@ Object.keys(bcv)
   const myMap = new Map();
     myKeys.forEach((pp,ii) =>  myMap.set(pp,myValues[ii][0].replace(/[@:!]/g,'')));
     const myResult  = Object.fromEntries(myMap);
-    myResult.bc = myResult.b + myResult.c;
-    myResult.search = myResult.bc+':'+myResult.v;
+//    myResult.bc = myResult.b + myResult.c;
+    myResult.search = [myResult.bc,myResult.v].filter(Boolean).join(':');
     myResult.input = x;
   return myResult
 }
 //console.log(bcv_());
 
-bcv_dep = function(x='2john3:16!SG21@bgw'){
+bcv_dep = function(x='2john3'){
 // tri-split
 const values = x.split(/[!@]/);
 const book =  x
@@ -99,7 +102,7 @@ Object.keys(bcv)
  delete bcv[key]);
 return bcv
 }
-console.log(bcv_('ps50:4'));
+console.log(bcv_('ps50'));
 
 queryString_ = function(
   search = registry.bgw.search
@@ -164,7 +167,7 @@ async content_(){
 
 }
 
-const bg = new What_('john4:18!NGU-DE');
+const bg = new What_('ps117');
 //console.log(bg);
 bg.content_().then(x=>console.log(x));
 
