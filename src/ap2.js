@@ -1,4 +1,4 @@
-// api stands for retrieval of json data
+	// api stands for retrieval of json data
 // extracted Verses from Bgw
 
 //    these known libraries
@@ -39,9 +39,46 @@ actuals_ = function(
   ){
 return {...defaut, ...param}
 }
+bcv2_ = function( x='2john3:16-17,2,5+5:3' ){
+// syntax is ^BC:V-V!E@S$
+//  source web is 
+//  everything but stripped before @
+  const s = x
+// from start to eventually @ make empty to keep source
+   .replace(/^.+@*/,"@")
+//  edition
+// discard previous source
+// from start to enventually ! make empty 
+  const e = x
+    .replace(s,"")
+    .replace(/^.+!*/,"!")
+// book
+  const b =  x
+//  nullify from chapter : to end 
+    .replace(/[0-9]+:.+$/,"")
+// verses
+  const cv = x
+    .replace(/^\d*[a-z]+/,"")
+    .replace(/!.+/,"")
+    .split("+")
+  const bcv = {
+    param: x,
+    source: s,
+    version: e,
+    b: b,
+    cv: cv
+    };
+// delete null  property
+Object.keys(bcv)
+ .forEach(key => 
+  bcv[key] === null && delete bcv[key]);
 
-bcv_ = function( x='2john3:16!SG21@bgw' ){
-// syntax is ^BC:V!E@S$
+return bcv
+}
+console.log(bcv2_());
+
+bcv_ = function( x='2john3:16-17!SG21@bgw' ){
+// syntax is ^BC:V-V!E@S$
   const bc = x
     .match(/^\d*[a-z]+[0-9]+/i);
   const b =  bc[0]
@@ -49,7 +86,7 @@ bcv_ = function( x='2john3:16!SG21@bgw' ){
   const c = bc[0]
     .match(/\d*$/);
   const v = x
-    .match(/:\d*/);
+    .match(/:[0-9-,]*/);
   const e = x
     .match(/![a-z0-9-]*@*/i);
   const s = x
@@ -58,7 +95,7 @@ bcv_ = function( x='2john3:16!SG21@bgw' ){
     bc: bc,
 //    b: b,
 //    c: c,
-//    v: v,
+      v: v,
     version: e,
     source: s
     };
@@ -79,11 +116,11 @@ Object.keys(bcv)
     myResult.param = x;
   return myResult
 }
-//console.log(bcv_());
+console.log(bcv_("2Sam1:6-7,12,15"));
 
 // normalize bcv input
 input_ = function(
-  x= '2tim4:5',
+  x= '2tim4:5-8',
   defaut= 'ps1:1!SG21@bgw'){
   const my_x = bcv_(x);
   const my_defaut = bcv_(defaut);
@@ -92,7 +129,7 @@ input_ = function(
   result.query = '?'+ new URLSearchParams({search: result.search, version: result.version}).toString();
 return result
 };
-//console.log(input_());
+console.log(input_());
 
 // what gathers all search and endpoint data
 class miniWhat_ {
@@ -152,12 +189,12 @@ async content_(){
  } // end of fun
 }
 
-//const bg = new miniWhat_('rom13:5!NGU-DE');
-//console.log(input_('ps119:8'));
-const bg = new miniWhat_('is42!SG21');
+const bg2 = new What_('rom13:5-6,9!NGU-DE');
+//console.log(bg2);
+//const bg = new miniWhat_('is42:1-5!SG21');
 //console.log(bg);
-//bg.content_().then(x=>console.log(x));
-bg.api_().then(x=>console.log(x));
+bg2.content_().then(x=>console.log(x));
+//bg2.api_().then(x=>console.log(x));
 
 //≠≠============
 
