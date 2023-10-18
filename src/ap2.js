@@ -39,13 +39,20 @@ actuals_ = function(
   ){
 return {...defaut, ...param}
 }
-bcv2_ = function( x='2john3:16-17,2,5+5:3' ){
+
+params_ = function( x='2john3:16-17,2,5+5:3;ps51+53:2' ){
+  const params = x.split(";");
+  return params
+}
+//console.log(params_());
+
+bcv_split_ = function( x='2john3:16-17,2,5+5:3' ){
 // syntax is ^BC:V-V!E@S$
 //  source web is 
 //  everything but stripped before @
   const s = x
 // from start to eventually @ make empty to keep source
-   .replace(/^.+@*/,"@")
+   .replace(/^.*@*/,"@")
 //  edition
 // discard previous source
 // from start to enventually ! make empty 
@@ -61,6 +68,9 @@ bcv2_ = function( x='2john3:16-17,2,5+5:3' ){
     .replace(/^\d*[a-z]+/,"")
     .replace(/!.+/,"")
     .split("+")
+
+//  const canon = cv.map(x => {return b+x+e+s});
+
   const bcv = {
     param: x,
     source: s,
@@ -68,14 +78,25 @@ bcv2_ = function( x='2john3:16-17,2,5+5:3' ){
     b: b,
     cv: cv
     };
-// delete null  property
-Object.keys(bcv)
- .forEach(key => 
-  bcv[key] === null && delete bcv[key]);
+
+// delete ""  property
+//Object.keys(bcv)
+//  .forEach(key => 
+//   bcv[key] == "" && delete bcv[key]);
 
 return bcv
 }
-console.log(bcv2_());
+console.log(bcv_split_('ps1:1!SG21@bgw'));
+
+canon_ = function(
+  param = params_()[0], 
+  defaut= 'ps1:1!SG21@bgw'){
+const my_param = bcv_split_(param);
+const my_defaut = bcv_split_(defaut);
+const res = {...my_param,...my_defaut};
+return res
+}
+console.log(canon_());
 
 bcv_ = function( x='2john3:16-17!SG21@bgw' ){
 // syntax is ^BC:V-V!E@S$
@@ -116,7 +137,7 @@ Object.keys(bcv)
     myResult.param = x;
   return myResult
 }
-console.log(bcv_("2Sam1:6-7,12,15"));
+//console.log(bcv_("2Sam1:6-7,12,15"));
 
 // normalize bcv input
 input_ = function(
@@ -129,7 +150,7 @@ input_ = function(
   result.query = '?'+ new URLSearchParams({search: result.search, version: result.version}).toString();
 return result
 };
-console.log(input_());
+//console.log(input_());
 
 // what gathers all search and endpoint data
 class miniWhat_ {
@@ -193,7 +214,7 @@ const bg2 = new What_('rom13:5-6,9!NGU-DE');
 //console.log(bg2);
 //const bg = new miniWhat_('is42:1-5!SG21');
 //console.log(bg);
-bg2.content_().then(x=>console.log(x));
+//bg2.content_().then(x=>console.log(x));
 //bg2.api_().then(x=>console.log(x));
 
 //≠≠============

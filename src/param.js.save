@@ -1,0 +1,26 @@
+param_ = function(x =
+  "1john3:16!SG21@bgw;act4:12"){
+  return x.split(";")
+}
+console.log(param_());
+
+split_ = function (x = param_()[0]){
+  const s = x
+   .match(/@[A-Z0-9]*/gi);
+  const e = x
+   .replace(s,"")
+   .match(/![A-Z0-9]*/gi);
+ const cv =   
+const bcv = {
+   source: s,
+   edition: e
+   }
+  return bcv
+}
+console.log(split_());
+
+bcv_ = function(x= param_()){
+  const res = x.map((x) => split_(x)) ;
+  return res
+}
+console.log(bcv_());
