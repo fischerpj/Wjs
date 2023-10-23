@@ -1,3 +1,6 @@
+	// api stands for retrieval of json data
+// extracted Verses from Bgw
+
 //    these known libraries
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -23,71 +26,10 @@ const api = {
         }
     };
 
-param_ = function(x =
-  "1john3:16-18!SG21@bgw;act4:12+5:1-3"){
-  return x.split(";")
-}
-//console.log(param_());
-
-split_ = function (x = param_()[0]){
-  const s = x
-    .match(/@[A-Z0-9]*/gi);
-  const e = x
-   .replace(s,"")
-   .match(/![A-Z0-9]*/gi);
-  const b = x
-   .match(/^\d*[a-z]+/gi);
-  const cv = x
-   .replace(s,"")
-   .replace(e,"")
-   .replace(b,"")
-   .split("+")
-  const bcv = {
-   s: s,
-   e: e,
-   b: b,
-   cv: cv
-   }
-// delete ""  property
-Object.keys(bcv)
-  .forEach(key =>
-    bcv[key] === null
-    && delete bcv[key]);
-
-  return bcv
-}
-console.log(split_());
-
-canon_ = function(
-  x= '2tim4:5',
-  defaut= 'ps1:1!SG21@bgw'){
-  const my_x = split_(x);
-  const my_defaut = split_(defaut);
-  const result = {...my_defaut, ...my_x};
-  result.input = x;
-  result.params = result.cv.map((x)=>result.b+x+result.e+result.s);
-//  result.canon = result.b + result.cv +result.e +result.s
-  return result
-}
-//console.log(canon_())
-
-bcv_ = function(x= param_()){
-  const res = x
-//    .map((x) => split_(x)) 
-    .map((x) => canon_(x))
-  return res
-}
-//console.log(bcv_());
-
-// api stands for retrieval of json data
-// extracted Verses from Bgw
-
 // what gathers all search and endpoint data
 class miniWhat_ {
   constructor(x= 'john3:17!NGU-DE'){
-console.log(x);
-console.log(canon_(x));
-    this.param = canon_(x).params[0];
+    this.param = x;
     this.api = API_ENDPOINT;
   }
 
@@ -142,10 +84,24 @@ async content_(){
  } // end of fun
 }
 
-//const bg2 = new What_('rom13:5-6,9!NGU-DE');
+const bg2 = new What_('rom13:5-6,9!NGU-DE');
 //console.log(bg2);
-const bg2 = new miniWhat_('eph1-6');
-console.log(bg2);
+//const bg = new miniWhat_('is42:1-5!SG21');
+//console.log(bg);
 //bg2.content_().then(x=>console.log(x));
 //bg2.api_().then(x=>console.log(x));
 
+//≠≠============
+
+
+queryString_dep_ = function(
+  search = registry.bgw.search
+  ){
+// collect param's keys in array
+   const myKeys = Object.keys(search);
+// collect param's values in array
+    const myValues = Object.values(search);
+    my_search = new URLSearchParams;
+    myKeys.forEach((pp,ii)=> my_search.append(myKeys[ii],myValues[ii]));
+    return '?'+my_search.toString();
+}

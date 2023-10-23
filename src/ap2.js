@@ -147,7 +147,11 @@ input_ = function(
   const my_defaut = bcv_(defaut);
   const result = actuals_(param=my_x, defaut=my_defaut);
   result.canon = result.search +'!'+result.version+'@'+result.source;
-  result.query = '?'+ new URLSearchParams({search: result.search, version: result.version}).toString();
+  result.query = '?'+ new 
+URLSearchParams(
+{search: result.search, 
+version: result.version})
+.toString();
 return result
 };
 //console.log(input_());
