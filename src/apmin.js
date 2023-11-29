@@ -41,7 +41,7 @@ const source = x
 // version
 const version = x
   .match(/![A-Z0-9-]+/gi);
-// search
+// search ie entire bcv
 const search = x
   .match(/^[A-Z0-9:,-]+/gi);
 // result object
@@ -52,7 +52,7 @@ const bcv = {
   search: search,
   version: version
 }
-// delete null  property
+// delete null property
 Object.keys(bcv)
  .forEach(key => 
   bcv[key] === null && delete bcv[key]);
@@ -78,7 +78,7 @@ return res
 }
 console.log(mono_canon_());
 
-// what gathers all search and endpoint data
+// monowhat gathers all search and endpoint data
 class monoWhat_ {
   constructor(x= 'john3:17!NGU-DE'){
     Object.assign(this,mono_canon_(x));
@@ -101,7 +101,7 @@ async api_(){
   }
 }
 
-// retrieve from Bgw
+// retrieve from Bgw directly
 async content_(){
   try{
     this.href = this.url + '?'+ new URLSearchParams(
@@ -139,6 +139,6 @@ mw.api_().then(x=>console.log(x));
 mw.content_().then(x=>console.log(x));
 
 mini_split_ = function(x= params_()){
-  return x.map((x) => mono_split_(x))
+  return x.map((x) => mono_canon_(x))
 }
-//console.log(mini_split_());
+console.log(mini_split_());
