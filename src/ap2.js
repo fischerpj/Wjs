@@ -218,7 +218,7 @@ const bg2 = new What_('rom13:5-6,9!NGU-DE');
 //console.log(bg2);
 //const bg = new miniWhat_('is42:1-5!SG21');
 //console.log(bg);
-//bg2.content_().then(x=>console.log(x));
+bg2.content_().then(x=>console.log(x));
 //bg2.api_().then(x=>console.log(x));
 
 //≠≠============
