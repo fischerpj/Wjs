@@ -5,6 +5,7 @@
 //   sourced from Bgw, in- or -directly
 //   and returned as json data
 
+// VERSION: 0.201 24-oct-24
 //  monoWhat class offers methods :
 //    bgw_verses_
  
@@ -106,7 +107,7 @@ constructor(x= 'john3:17-21!NGU-DE;ps1:1!SG21'){
 //  this._result = await verses();
   }
 
-// retrieve from Jsf
+// execute retrieval from Jsf
 async jsf_api_(){
   try{
     this.href = this.api + '?'+ new URLSearchParams(
@@ -122,7 +123,7 @@ async jsf_api_(){
   }
 }  // end of method jsf_api_
 
-// retrieve from Bgw directly
+// execute retrieval from Bgw directly
 async content_(){
   try{
     this.href = this.url + '?'+ new URLSearchParams(
@@ -138,7 +139,7 @@ async content_(){
     const $passage = $(this['content']);
     this._content = $(this['content']);
 //.text().trim();
-//console.log(this._content);
+console.log(this._content);
 
 const books = [];
 const books1=  $(this['content']).children('span');
@@ -150,14 +151,14 @@ books1.each((index,book)=>{
     };
     books.push(structuredData)
 });
-//console.log(books);
+console.log(books);
 
     const arr = $(this['meta']);
     const ref = arr[0]['children']['0']['data'];
     const edition = arr[1]['children']['0']['data'];
 
     this._result = {
-//      other: books,
+      other: books,
       call: this.call,
       canon: this.canon,
       href: this.href,
@@ -407,7 +408,7 @@ const vjson = JSON.stringify(Array.from(verses));
 } // end of object 'monoWhat_'
 
 // make instance of object 'monoWhat_'
-const mw = new monoWhat_("eph2-3:2");
+const mw = new monoWhat_("eph2:8");
 mw.jsf_api_().then(x=>console.log(x));
 //console.log(mw);
 // invoke method 'content_'
