@@ -1,13 +1,20 @@
 // apmin.js offers the ClientAPI 
-//   to the JsfAPI server, proxy
-//     OR to Bgw server, source
+//   to the JsfAPI server, aka the proxy
+//     OR to Bgw server, aka the source
 //   for the request of Verses
 //   sourced from Bgw, in- or -directly
 //   and returned as json data
 
-// VERSION: 0.201 24-oct-24
-//  monoWhat class offers methods :
-//    bgw_verses_
+// VERSION: 0.214 26-oct-24
+const level = "0.214 responseJson only";
+// FUNCTIONS: look like
+// - params_
+// - mono_split_
+// - mono_canon_
+// - mini_split_
+
+//  CLASSES: monoWhat_ is the ONLY class defined here
+//  monoWhat_methods: [ 'jsf_api_', 'content_', 'bgw_verses_', 'passage_' ]
  
 // version2 keeps verse_level structured elements
 //    these known libraries
@@ -139,7 +146,7 @@ async content_(){
     const $passage = $(this['content']);
     this._content = $(this['content']);
 //.text().trim();
-console.log(this._content);
+//// V209 console.log(this._content);
 
 const books = [];
 const books1=  $(this['content']).children('span');
@@ -151,14 +158,14 @@ books1.each((index,book)=>{
     };
     books.push(structuredData)
 });
-console.log(books);
+//// V209 console.log(books);
 
     const arr = $(this['meta']);
     const ref = arr[0]['children']['0']['data'];
     const edition = arr[1]['children']['0']['data'];
 
     this._result = {
-      other: books,
+//      other: books,
       call: this.call,
       canon: this.canon,
       href: this.href,
@@ -176,12 +183,14 @@ console.log(books);
 
 async bgw_verses_(){
   try{
-// FETCH resource
+// FETCH the resource in the cloud
+// 1. craft the targeted url
     this.href = this.url + '?'+ new URLSearchParams(
       {search: this.search,
        version: this.version})
       .toString();
 console.log(this.href);
+// 2. FETCH actually the response abnd keep its data
     this._body = await axios
       .get(this.href)
       .then(x=>x.data);
@@ -190,9 +199,9 @@ console.log(this.href);
 // load takes a string into a cheerio object, which is a function !
     const $ = cheerio.load(this._body);
 
-// EXTRACT content-passage
+// EXTRACT content-passage element
     this._passage = $(this['passage']);
-// .footnote(s) are all  removed up front om $ document
+// .footnote(s) are all  removed up front on $ document
     $('.footnote').remove();
     $('.footnotes').remove();
     this._nofoot = $(this['passage']); 
@@ -267,33 +276,41 @@ const vmap = new Map(verses.map((obj) => [obj.vref, obj]
   ));
 const jmap = JSON.stringify(Object.fromEntries(vmap));
 
-// elaborate RESULT
+// elaborate final RESULT of bgw_verses_
     this._result = {
-      paramInput: {
-        param: this.param,
-        canon: this.canon,
-        call: this.call,
-        version: this.version,
-        search: this.search,
-        refs: refs,
-        edition: edition,
-        },
+// INPUT PARAMS recalled
+//      paramInput: {
+//        canon: this.canon,
+//        call: this.call,
+//        refs: refs,
+//        edition: edition,
+//        },
 //      strucObject: {
 //        outer: this._passage.prop('outerHTML'),
 //        nofoot: this._nofoot.prop('outerHTML'),
-  //    spans: this._spans.prop('outerHTML'),
+//        spans: this._spans.prop('outerHTML'),
 //        },
-      strucVerses: vmap,
+// VERSES collection AS JS Object is obliterated by V209
+////      strucVerses: vmap,
+// as JSON, the response object of [refs, edition, jmap] 
       responseJson: {
+	level: level,
+        param: this.param,
+        search: this.search,
+        version: this.version,
 //      content: books,
+        call: this.call,
+        canon: this.canon,
+        href: this.href,
         refs: refs,
         edition: edition,
-        jmap: jmap,
+// jmap is JSON MAP of VERSES collection
+        jmap_content: jmap,
 //        vjson: JSON.stringify(Array.from(verses)),
         }
       };
 // return value of try of bgw_verses_
-return this._result
+return this._result.responseJson;
 //
   } //end of try
   catch(error){
@@ -408,11 +425,30 @@ const vjson = JSON.stringify(Array.from(verses));
 } // end of object 'monoWhat_'
 
 // make instance of object 'monoWhat_'
-const mw = new monoWhat_("eph2:8");
-mw.jsf_api_().then(x=>console.log(x));
+const mw = new monoWhat_("eph2:8-9");
+
+// ENUMERATE the methods available in class monoWhat_
+
+// general purpose UTILITY to list the methods of a class 
+function listClassMethods(classObj) {
+  let methods = Object.getOwnPropertyNames(classObj.prototype);
+  return methods.filter(method => method !== 'constructor');
+}
+
+let methods = { monoWhat_methods: listClassMethods(monoWhat_)};
+console.log("\nmw.methods =>");
+console.log(methods); 
+
+// mw.jsf_api_().then(x=>console.log(x));
 //console.log(mw);
+
 // invoke method 'content_'
+console.log("\nmw.content_ =>");
 //mw.content_().then(x=>console.log(x));
+
+//// Recall bgw_verses return structure is a json object
+//
+console.log("\nmw.bg_verses_ =>");
 mw.bgw_verses_().then(x=>console.log(x));
 
 mini_split_ = function(x= params_()){

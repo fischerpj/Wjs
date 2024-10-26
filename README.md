@@ -7,6 +7,7 @@ Full NodeJS Web Scraping
 - Use Termux, git and gh cli, termux-api 
 
 ### Technos
+-  git clone https://github.com/fischerpj/Wjs.git
 - termux os with node
 - axios for http GET
 - cheerioh for PARSING like $(div#library-article-container li)
