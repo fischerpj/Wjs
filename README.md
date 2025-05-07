@@ -1,6 +1,6 @@
 # Wjs alias XJT aXios Js Termux
 Full NodeJS Web Scraping 
-from rv5
+from rv5 now merged 
 
 ## Abstract
 - Dev Platform Termux Git NodeJS Axios
