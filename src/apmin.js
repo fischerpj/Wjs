@@ -1,13 +1,25 @@
-// apmin.js offers the ClientAPI 
-//   to the JsfAPI server, proxy
-//     OR to Bgw server, source
+//   apmin.js offers the ClientAPI 
+//   to the JsfAPI server, aka the proxy
+//     OR to Bgw server, aka the source
 //   for the request of Verses
 //   sourced from Bgw, in- or -directly
 //   and returned as json data
 
-// VERSION: 0.201 24-oct-24
-//  monoWhat class offers methods :
-//    bgw_verses_
+//   TODO
+//	- structure the endpoints per output as getter methods 
+//	- structure metadata, query_data and verse_data
+//	- transport to new netlify function
+
+// VERSION: 0.222 2-nov-24
+const level = "0.222 hidden";
+// FUNCTIONS: look like
+// - params_
+// - mono_split_
+// - mono_canon_
+// - mini_split_
+
+//  CLASSES: monoWhat_ is the ONLY class defined here
+//  monoWhat_methods: [ 'jsf_api_', 'content_', 'bgw_verses_', 'passage_' ]
  
 // version2 keeps verse_level structured elements
 //    these known libraries
@@ -29,8 +41,8 @@ const api = {
         desc: 'BibleGateway',
         api: 'https://jsfapi.netlify.app/.netlify/functions/bgw',
         url: 'https://www.biblegateway.com/passage/',
-        content:'div.passage-content p',
-        passage: 'div.passage-content',
+        content:'div.passage-content p', // yields genuine verses only
+        passage: 'div.passage-content',  // carries title, subtitles as well
         meta: 'div.dropdown-display-text',
         },
       bst: {
@@ -45,7 +57,7 @@ const api = {
 //console.log(api.bgw);
 
 params_ = function( 
-  x='rom1:17;gen1:1!NGU-DE;ps1:1-3!KJV@bgw;ps121:1,4,5!SG21;ps117@bgw' ){
+  x='rom1:17;gen1:1!NGU-DE;ps1:1-3!KJV@bgw;ps121:1,4,5!SG21;ps117@bgw'){
   const params = x.split(";");
   return params
 }
@@ -82,9 +94,9 @@ return bcv
 mono_canon_ = function(
   param = params_()[0], 
   defaut= 'ps1:1!SG21@bgw'){
-const my_param = mono_split_(param);
-const my_defaut = mono_split_(defaut);
-const res = {...my_defaut,...my_param};
+    const my_param = mono_split_(param);
+    const my_defaut = mono_split_(defaut);
+    const res = {...my_defaut,...my_param};
 // from array to string
 Object.keys(res)
  .forEach(key => 
@@ -102,10 +114,7 @@ class monoWhat_ {
 constructor(x= 'john3:17-21!NGU-DE;ps1:1!SG21'){
     Object.assign(this,mono_canon_(x));
     Object.assign(this,api[this.call]);
-
-// tentative constructor
-//  this._result = await verses();
-  }
+    }
 
 // execute retrieval from Jsf
 async jsf_api_(){
@@ -138,8 +147,6 @@ async content_(){
     $('.footnote').remove(); 
     const $passage = $(this['content']);
     this._content = $(this['content']);
-//.text().trim();
-console.log(this._content);
 
 const books = [];
 const books1=  $(this['content']).children('span');
@@ -151,14 +158,13 @@ books1.each((index,book)=>{
     };
     books.push(structuredData)
 });
-console.log(books);
 
     const arr = $(this['meta']);
     const ref = arr[0]['children']['0']['data'];
     const edition = arr[1]['children']['0']['data'];
 
     this._result = {
-      other: books,
+//      other: books,
       call: this.call,
       canon: this.canon,
       href: this.href,
@@ -174,14 +180,163 @@ console.log(books);
     }
  } // end of method  'content_'
 
+//==========================================================================
+async bgw_explo_(){
+
+try{
+
+// FETCH the resource in the cloud
+// 1. craft the targeted URL
+    this.href = this.url + '?'+ new URLSearchParams(
+      {search: this.search,
+       version: this.version})
+      .toString();
+ console.log(this.href);
+
+// 2. FETCH actually the response and keep its data
+    this._body = await axios
+      .get(this.href)
+      .then(x=>x.data);
+
+// LOAD cheerio which is a FUNCTION
+// load takes a string into a cheerio object, which is a function !
+   const $ = cheerio.load(this._body);
+
+// Select the element with the id attribute
+// Select the h2 parent element
+$('h2 span[id]').parent().attr('hidden', true);
+$('h3 span').parent().attr('hidden', false);
+
+// EXTRACT content-passage element in INTEGRITY with h2/h3
+// aimed at outer_passage output
+    this._passage = $(this['passage']);
+    this._outer_passage = this._passage.prop('outerHTML'),
+
+// REMOVE UP-FRONT in $ h3 BUT keep h2 for its vid !!
+    $('h3').remove(); 
+// before remowing h2 memorize its vid however
+
+this._vid = $('span[id]'); // Select all span elements with an id attribute
+const classIdMap = new Map();
+
+this._vid.each(function() {
+  const className = $(this).attr('class').replace('text ','');
+  const id = $(this).attr('id');
+  classIdMap.set(className, id);
+});
+
+// REMENBER e.g, to make text of h2 void !!
+
+// EXTRACT from the 'div.content-passage' element
+// all REMAINING 'span.text' elements ONLY
+    $('h2').remove(); 
+    this._spans =  $(this['passage'] + ' span.text');
+    this._content = $(this['content']).text().trim();
+
+// META info
+    const arr = $(this['meta']);
+    const refs = arr[0]['children']['0']['data'];
+    const edition = arr[1]['children']['0']['data'];
+
+//==================================================
+// ITERATE convert to Array / Map
+    const verses = [];
+
+// LOOP
+    this._spans.each((index,book)=>{
+
+// delineate bcv
+   const  vref= $(book).attr('class').replace('text ','');
+   let vbook, vchap, vnum;
+   [vbook, vchap, vnum]=  vref.split("-");
+// 
+
+// assemble RESULT_NEW
+      const structuredData = {
+        index:  index,
+	vclass: vref,
+        vtext:  $(book).text(),
+	bcv: 	{book: vbook, chap: vchap, vers: vnum }
+      	};
+//    console.log(structuredData);
+
+// AUGMENT the result
+      verses.push(structuredData);
+
+  }) // end of LOOP
+
+
+// CONVERT to MAP
+// make a Map thereof
+const vmap = new Map(verses.map((obj) => [obj.index, obj]));
+const jmap = JSON.stringify(Object.fromEntries(vmap));
+
+//***
+// Group by vclass and accumulate vtext
+const groupedByVclass = new Map([...vmap.values()]
+  .reduce((acc, obj) => {
+    const key = obj.vclass;
+    const currentValue = acc.get(key) || { vtext: '', bcv: obj.bcv };
+    currentValue.vtext += ' ' + obj.vtext;
+    acc.set(key, currentValue);
+    return acc;
+  }, new Map()));
+
+// Convert to an array to process and display results
+const vcontent = Array.from(groupedByVclass, ([key, value]) => ({ vref: key, bcv: value.bcv, atext: value.vtext.trim() }));
+//***
+
+// Add the corresponding value from vmap to each verse
+vcontent.forEach(verse => {
+  const key = verse.vref;
+  verse.vid = classIdMap.get(key);
+});
+
+/////
+//==================================================
+
+// elaborate final RESULT of bgw_explo_
+    this._result = {
+// as JSON, the response object of [refs, edition, jmap]
+      responseJson: {
+	meta: {
+          call: this.call,
+          canon: this.canon,
+	  href: this.href,
+          ref: refs,
+          edition: edition
+	  }, 
+	content: this._content,
+ 	outer_passage: this._outer_passage,
+	list_verses: vcontent,
+	vid_map: classIdMap
+        }
+      };
+// return value of try of bgw_explo_
+return this._result;
+
+//===================================================
+} //end of try
+  catch(error){
+    console.log(error)
+    } // end of catch
+
+} // end of method  'bgw_explo_'
+//===============================================================================
+
 async bgw_verses_(){
+
   try{
-// FETCH resource
+
+// FETCH the resource in the cloud
+// 1. craft the targeted url
     this.href = this.url + '?'+ new URLSearchParams(
       {search: this.search,
        version: this.version})
       .toString();
 console.log(this.href);
+
+// 2. FETCH actually the response and keep its data
     this._body = await axios
       .get(this.href)
       .then(x=>x.data);
@@ -190,9 +345,16 @@ console.log(this.href);
 // load takes a string into a cheerio object, which is a function !
     const $ = cheerio.load(this._body);
 
-// EXTRACT content-passage
+// EXTRACT content-passage element
     this._passage = $(this['passage']);
-// .footnote(s) are all  removed up front om $ document
+
+// REMOVE h3 and keep h2 for its vid !!
+    $(this._passage).find('h3').remove();
+// make text of h2 void !!
+
+//console.log(this._passage);
+    this._content = $(this['content']).text().trim();
+// .footnote(s) are all  removed up front on $ document
     $('.footnote').remove();
     $('.footnotes').remove();
     this._nofoot = $(this['passage']); 
@@ -209,6 +371,7 @@ console.log(this.href);
 
 // keep only SPANS, a typeof  cheerio object
     this._spans =  $(this['passage'] + ' span');
+
 // console.log(typeof this._spans);
 // expected cheerio object keys
 // [ '0', '1', '2', '3', 'length', 'options', '_root', 'prevObject' ]
@@ -219,9 +382,25 @@ console.log(this.href);
 // reference to last in _spans
     let last = undefined;
     let vhidden = 'false';
-    this._spans.each((index,book)=>{
-      let  vid =  $(book).attr('id');// isolate lang, version, verseid
 
+// LOOP
+    this._spans.each((index,book)=>{
+    let  vid =  $(book).attr('id');// isolate lang, version, verseid
+//    console.log("index + vid:", index, vid );
+//    console.log("vtext:", $(book).text());
+
+// make RESULT_NEW
+      const structuredData = {
+        index: index,
+	vouter: $(book).prop('outerHTML'),
+        vid: $(book).attr('id'),
+        vtext: $(book).text(),
+      	};
+
+// AUGMENT result
+      verses.push(structuredData);
+
+/*
 // CASE undefined  id
     if (vid === undefined) {
 // take previous value as replacement
@@ -230,12 +409,15 @@ console.log(this.href);
       $(book).attr("id", vid);
 //  mark attr & prop as hidden 'last' which is a title text
       vhidden = 'true';
-        $(last).attr("hidden",vhidden); 
-        verses[index-1].hidden = vhidden;
+      $(last).attr("hidden",vhidden); 
+      verses[index-1].hidden = vhidden;
       vhidden = 'false';
 //  redo 'last' with this hidden attr
       verses[index-1].vouter = $(last).prop('outerHTML');
-     };
+     }; // end of IF
+*/
+
+/*
 // isolate lang, version, verseid
     let vlang, vversion, vseq;
     [vlang, vversion, vseq]=  vid.split("-");
@@ -244,6 +426,9 @@ console.log(this.href);
    let vbook, vchap, vnum;
    [vbook, vchap, vnum]=  vref.split("-");
 // 
+*/
+
+/*
 // make RESULT
       const structuredData = {
         vid: vid,
@@ -256,54 +441,75 @@ console.log(this.href);
         vchap: vchap,
         vnum: vnum,
         vouter:  $(book).prop('outerHTML'),
+        vouter2:  $(last).prop('outerHTML') + $(book).prop('outerHTML'),
         vtext: $(book).text(),
         };
       verses.push(structuredData);
+*/
+
+/*
 // memorize for next turn
     last = book;
-    })
-// make a Map thereof
-const vmap = new Map(verses.map((obj) => [obj.vref, obj]
-  ));
-const jmap = JSON.stringify(Object.fromEntries(vmap));
+*/
+  }) // end of LOOP
 
-// elaborate RESULT
+// CONVERT to MAP
+// make a Map thereof
+const vmap = new Map(verses.map((obj) => [obj.index, obj]));
+const jmap = JSON.stringify(Object.fromEntries(vmap));
+console.log(vmap);
+
+/*
+// elaborate final RESULT of bgw_verses_
     this._result = {
-      paramInput: {
-        param: this.param,
-        canon: this.canon,
-        call: this.call,
-        version: this.version,
-        search: this.search,
-        refs: refs,
-        edition: edition,
-        },
+// INPUT PARAMS recalled
+//      paramInput: {
+//        canon: this.canon,
+//        call: this.call,
+//        refs: refs,
+//        edition: edition,
+//        },
 //      strucObject: {
 //        outer: this._passage.prop('outerHTML'),
 //        nofoot: this._nofoot.prop('outerHTML'),
-  //    spans: this._spans.prop('outerHTML'),
+//        spans: this._spans.prop('outerHTML'),
 //        },
-      strucVerses: vmap,
+// VERSES collection AS JS Object is obliterated by V209
+////      strucVerses: vmap,
+// as JSON, the response object of [refs, edition, jmap] 
       responseJson: {
-//      content: books,
-        refs: refs,
+	level: level,
+        param: this.param,
+        search: this.search,
+        version: this.version,
+//        content: books,
+        call: this.call,
+        canon: this.canon,
+        href: this.href,
+	content: this._content,
+        ref: refs,
         edition: edition,
-        jmap: jmap,
+// jmap is JSON MAP of VERSES collection
+        jmap_content: jmap,
+        outer_passage: this._passage.prop('outerHTML'),
 //        vjson: JSON.stringify(Array.from(verses)),
         }
       };
 // return value of try of bgw_verses_
-return this._result
+return this._result.responseJson;
+*/
+return 'tutu'
 //
   } //end of try
   catch(error){
     console.log(error)
     } // end of catch
- } // end of method  'bgw_verses_'
+} // end of method  'bgw_verses_'
 
+//===========================================================================
+/*
 // retrieve from Bgw directly
 async passage_(){
-  try{
     this.href = this.url + '?'+ new URLSearchParams(
       {search: this.search,
        version: this.version})
@@ -403,17 +609,42 @@ const vjson = JSON.stringify(Array.from(verses));
   catch(error){
     console.log(error)
     }
- } // end of method  'content_'
+  } // end of method  'content_'
+*/
+//============================================================================
 
 } // end of object 'monoWhat_'
 
 // make instance of object 'monoWhat_'
-const mw = new monoWhat_("eph2:8");
-mw.jsf_api_().then(x=>console.log(x));
+const mw = new monoWhat_("john3:17-21!NGU-DE;ps1:1-5!SG21,2:5-6");
+console.log(mw);
+
+// ENUMERATE the methods available in class monoWhat_
+
+// general purpose UTILITY to list the methods of a class 
+function listClassMethods(classObj) {
+  let methods = Object.getOwnPropertyNames(classObj.prototype);
+  return methods.filter(method => method !== 'constructor');
+}
+
+let methods = { monoWhat_methods: listClassMethods(monoWhat_)};
+console.log("\nmw.methods =>");
+console.log(methods); 
+
+// mw.jsf_api_().then(x=>console.log(x));
 //console.log(mw);
+
 // invoke method 'content_'
+//console.log("\nmw.content_ =>");
 //mw.content_().then(x=>console.log(x));
-mw.bgw_verses_().then(x=>console.log(x));
+
+//// Recall bgw_verses return structure is a json object
+//
+//console.log("\nmw.bg_verses_ =>");
+//mw.bgw_verses_().then(x=>console.log(x));
+
+//console.log("\nmw.bg_explo_ =>");
+//mw.bgw_explo_().then(x=>console.log(x));
 
 mini_split_ = function(x= params_()){
   return x.map((x) => mono_canon_(x))

@@ -8,3 +8,4 @@ strategy:
 - then with glued but disparate collection of verses
 log
 - create repo as Rproject, usable in termux
+- resume 2443 with apmin.js in bang  docker container
